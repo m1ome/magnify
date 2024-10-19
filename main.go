@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/heptiolabs/healthcheck"
 	"github.com/m1ome/magnify/pkg"
 )
 
@@ -36,7 +37,7 @@ func main() {
 		sendResponse(cache.Copy(), w)
 	})
 
-	http.HandleFunc("/{name}", func(w http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/key/{name}", func(w http.ResponseWriter, req *http.Request) {
 		v, ok := cache.Load(req.PathValue("name"))
 		if !ok {
 			w.WriteHeader(http.StatusNotFound)
@@ -45,6 +46,10 @@ func main() {
 
 		sendResponse(v, w)
 	})
+
+	health := healthcheck.NewHandler()
+	http.HandleFunc("/health/live", health.LiveEndpoint)
+	http.HandleFunc("/health/ready", health.ReadyEndpoint)
 
 	log.Printf("starting listening http server on %s", cfg.Http.Addr)
 	if err := http.ListenAndServe(cfg.Http.Addr, nil); err != nil {

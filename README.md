@@ -40,9 +40,13 @@ Response:
 
 ### Key
 Method: **GET**
-Path: **/{name}**
+Path: **/key/{name}**
 
 Response:
 ```json
 "operational"
 ```
+
+### Live & Ready endpoints
+Method: **GET**
+Path: **/health/live** and **/health/ready**
