@@ -13,6 +13,11 @@ Usage of magnify:
         yaml file config path (default "config.yaml")
 ```
 
+## Docker usage 
+```bash
+docker run -v ./config.yaml:/config.yaml -d w1n2k/magnify:1.0.0 
+```
+
 ## Example configuration
 Please look at [Expr](https://expr-lang.org/docs/getting-started) documentation for expressions.
 
