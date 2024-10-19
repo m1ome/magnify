@@ -87,6 +87,24 @@ func main() {
 			return
 		}
 
+		w.Header().Add("Content-Type", "application/json")
+		w.Write(buf)
+	})
+
+	http.HandleFunc("/key/{name}", func(w http.ResponseWriter, req *http.Request) {
+		v, ok := cache.Load(req.PathValue("name"))
+		if !ok {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		buf, err := json.Marshal(v)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Add("Content-Type", "application/json")
 		w.Write(buf)
 	})
 
