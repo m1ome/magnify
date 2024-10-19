@@ -3,6 +3,9 @@
 
 ![logo](logo.png)
 
+## About
+**Magnify** is a simple tool to provide a JSON API based metrics resolution on top of [Prometheus](https://prometheus.io/) it heavily relies on [Expr](https://expr-lang.org/docs/getting-started) for metrics transformation.
+
 ## Usage
 ```bash
 Usage of magnify:
@@ -11,6 +14,8 @@ Usage of magnify:
 ```
 
 ## Example configuration
+Please look at [Expr](https://expr-lang.org/docs/getting-started) documentation for expressions.
+
 ```yaml
 prometheus:
   addr: "http://localhost:4000"
