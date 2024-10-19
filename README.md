@@ -35,8 +35,8 @@ http:
 ## Endpoints
 
 ### Cache
-Method: **GET**
-Path: **/**
+Method: **GET**  
+Path: **/**  
 
 Response:
 ```json
@@ -44,8 +44,8 @@ Response:
 ```
 
 ### Key
-Method: **GET**
-Path: **/key/{name}**
+Method: **GET**  
+Path: **/key/{name}**  
 
 Response:
 ```json
@@ -53,5 +53,5 @@ Response:
 ```
 
 ### Live & Ready endpoints
-Method: **GET**
-Path: **/health/live** and **/health/ready**
+Method: **GET**  
+Path: **/health/live** and **/health/ready**  
