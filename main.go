@@ -6,39 +6,16 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"os"
-	"sync"
 	"time"
 
 	"github.com/expr-lang/expr"
+	"github.com/m1ome/magnify/pkg"
 	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
-	"gopkg.in/yaml.v3"
 )
 
 var configPath string
-var cache sync.Map
-
-type (
-	Config struct {
-		Prometheus struct {
-			Addr string `yaml:"addr"`
-		} `yaml:"prometheus"`
-		Expressions []Experssion `yaml:"expressions"`
-		Http        struct {
-			Addr string `yaml:"addr"`
-		} `yaml:"http"`
-	}
-
-	Experssion struct {
-		Name       string `yaml:"name"`
-		Query      string `yaml:"query"`
-		Experssion string `yaml:"expr"`
-	}
-
-	Cache sync.Map
-)
 
 func init() {
 	flag.StringVar(&configPath, "c", "config.yaml", "yaml file config path")
@@ -46,14 +23,9 @@ func init() {
 }
 
 func main() {
-	file, err := os.Open(configPath)
+	cfg, err := pkg.NewConfig(configPath)
 	if err != nil {
-		log.Fatalf("error opening config file: %v", err)
-	}
-
-	var cfg Config
-	if err := yaml.NewDecoder(file).Decode(&cfg); err != nil {
-		log.Fatalf("error reading config file: %v", err)
+		log.Fatalf("error initialzing config: %v", err)
 	}
 
 	c, err := api.NewClient(api.Config{
@@ -65,21 +37,20 @@ func main() {
 	v1api := v1.NewAPI(c)
 
 	log.Print("scraping metrics on a startup")
-	scrapeMetrics(cfg, v1api)
+	cache := pkg.NewCache(time.Duration(cfg.Cache.Expiration) * time.Second)
 
-	ticker := time.NewTicker(time.Minute)
+	scrapeMetrics(cfg, cache, v1api)
+
 	go func() {
+		ticker := time.NewTicker(time.Minute)
 		for range ticker.C {
-			scrapeMetrics(cfg, v1api)
+			scrapeMetrics(cfg, cache, v1api)
+			cache.Cleanup()
 		}
 	}()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		m := make(map[string]any)
-		cache.Range(func(key any, value any) bool {
-			m[key.(string)] = value
-			return true
-		})
+		m := cache.Copy()
 
 		buf, err := json.Marshal(m)
 		if err != nil {
@@ -114,7 +85,7 @@ func main() {
 	}
 }
 
-func scrapeMetrics(cfg Config, a v1.API) {
+func scrapeMetrics(cfg *pkg.Config, cache *pkg.Cache, a v1.API) {
 	for _, expr := range cfg.Expressions {
 		res, warnings, err := a.Query(context.Background(), expr.Query, time.Now())
 		if err != nil {
