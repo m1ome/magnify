@@ -21,3 +21,23 @@ expressions:
 http:
   addr: ":9999"
 ```
+
+## Endpoints
+
+### Cache
+Method: **GET**
+Path: **/**
+
+Response:
+```json
+{"goroutines": "operational"}
+```
+
+### Key
+Method: **GET**
+Path: **/key/{name}**
+
+Response:
+```json
+"operational"
+```
