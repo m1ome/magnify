@@ -35,7 +35,7 @@ Response:
 
 ### Key
 Method: **GET**
-Path: **/key/{name}**
+Path: **/{name}**
 
 Response:
 ```json

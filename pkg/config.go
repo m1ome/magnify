@@ -41,7 +41,9 @@ func NewConfig(path string) (*Config, error) {
 	}
 
 	cfg := &Config{}
-	// var cfg Config
+	cfg.Cache.Expiration = 60
+	cfg.Http.Addr = ":8080"
+
 	if err := yaml.NewDecoder(file).Decode(cfg); err != nil {
 		return nil, fmt.Errorf("error reading config file: %v", err)
 	}
